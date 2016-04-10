@@ -62,23 +62,46 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+% Generate X with biased elements
+X = [ones(m, 1) , X];
+yMap = eye(num_labels);
 
+Delta_1 = zeros(size(Theta1));
+Delta_2 = zeros(size(Theta2));
 
+for i = 1 : m
+	a1 = X(i, :)';
+	z2 = Theta1 * a1;
+	a2 = sigmoid(z2);
+	a2 = [1; a2];
+	z3 = Theta2 * a2;
+	a3 = sigmoid(z3);
+	hx = a3;
 
+	ty = yMap(:, y(i));
 
+	J += sum(-ty .* log(hx) .- (1 .- ty) .* log(1 .- hx));
 
+	delta3 = a3 - ty;
+	delta2 = Theta2(:, 2 : end)' * delta3 .* sigmoidGradient(z2);
+%	delta2 = delta2;
+	Delta_1 += delta2 * a1';
+	Delta_2 += delta3 * a2';
 
+end;
 
+J = J / m;
 
+regFix = sum(sum(Theta1(:, 2:end).^2)) + sum(sum(Theta2(:, 2:end).^2));
+regFix = regFix * lambda / (2 * m);
 
+J += regFix;
 
+Theta1_grad = Delta_1 ./ m;
+Theta2_grad = Delta_2 ./ m;
 
-
-
-
-
-
-
+Theta1_grad += [zeros(size(Theta1, 1), 1), Theta1(:, 2 : end)] * lambda / m;
+Theta2_grad += [zeros(size(Theta2, 1), 1), Theta2(:, 2 : end)] * lambda / m;
 
 % -------------------------------------------------------------
 
@@ -86,6 +109,5 @@ Theta2_grad = zeros(size(Theta2));
 
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
-
 
 end
