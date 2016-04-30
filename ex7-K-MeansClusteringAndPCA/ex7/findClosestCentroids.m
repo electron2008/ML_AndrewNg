@@ -21,11 +21,19 @@ idx = zeros(size(X,1), 1);
 % Note: You can use a for-loop over the examples to compute this.
 %
 
+m = size(X, 1);
 
+lengths = zeros(m, K);
 
+for i = 1 : K
+	diff = X .- centroids(i, :);
+	for j = 1 : m
+		lengths(j, i) = normest(diff(j, :)') ^ 2;
+end;
 
-
-
+for i = 1 : m
+	[val, idx(i)] = min(lengths(i, :));
+end;
 
 % =============================================================
 
